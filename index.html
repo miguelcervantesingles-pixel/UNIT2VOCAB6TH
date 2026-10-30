@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>People We Know – Teacher Lizbeth</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0418;--card:rgba(20,8,40,.82);--cy:#0ff;--pk:#ff2bd6;--or:#ff7a00;--gr:#39ff14;--tx:#f4eaff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font-family:'Fredoka',system-ui,sans-serif}
+canvas#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#app{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:2px solid var(--pk);border-radius:22px;padding:20px;text-align:center;box-shadow:0 0 18px var(--pk),inset 0 0 18px rgba(255,43,214,.25)}
+h1{font-family:'Creepster',cursive,system-ui;font-size:3.2rem;margin:4px 0;color:var(--or);text-shadow:0 0 8px var(--or),0 0 24px var(--or);letter-spacing:2px;font-weight:400}
+h2{color:var(--cy);text-shadow:0 0 10px var(--cy);margin:6px 0}
+.by{color:var(--gr);text-shadow:0 0 8px var(--gr);font-size:1.2rem;margin-bottom:12px}
+input[type=text]{width:100%;font:inherit;font-size:1.2rem;padding:12px;border-radius:14px;border:2px solid var(--cy);background:#10052a;color:var(--tx);box-shadow:0 0 10px var(--cy);text-align:center;margin:8px 0}
+label{display:block;text-align:left;color:var(--cy);margin-top:8px}
+.row{display:flex;gap:10px;justify-content:center;margin:8px 0}
+.btn{font:inherit;font-weight:600;font-size:1.15rem;padding:12px 18px;border-radius:16px;border:2px solid var(--gr);background:#0d1f10;color:var(--gr);cursor:pointer;box-shadow:0 0 12px var(--gr);text-shadow:0 0 6px var(--gr);transition:transform .1s}
+.btn:hover{transform:scale(1.05)}.btn:active{transform:scale(.96)}
+.btn.sel{background:var(--gr);color:#041;text-shadow:none}
+.btn.pk{border-color:var(--pk);color:var(--pk);background:#240a2a;box-shadow:0 0 12px var(--pk);text-shadow:0 0 6px var(--pk)}
+.btn.cy{border-color:var(--cy);color:var(--cy);background:#062a2e;box-shadow:0 0 12px var(--cy);text-shadow:0 0 6px var(--cy)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.opts .btn{font-size:1.05rem;border-color:var(--or);color:var(--or);background:#2a1300;box-shadow:0 0 10px var(--or);text-shadow:0 0 6px var(--or)}
+.opts .btn.ok{background:var(--gr);color:#041;border-color:var(--gr);box-shadow:0 0 18px var(--gr);text-shadow:none}
+.opts .btn.no{background:#600;color:#fff;border-color:#f33;box-shadow:0 0 18px #f33}
+.big{font-size:5rem;line-height:1.1;animation:fl 2.5s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-8px) rotate(4deg)}}
+.frame{font-size:1.3rem;margin:6px 0;color:#fff}
+.frame b{color:var(--cy);text-shadow:0 0 10px var(--cy);letter-spacing:2px}
+.hud{display:flex;justify-content:space-between;color:var(--cy);margin-bottom:10px;font-size:1.05rem}
+.bar{height:10px;border-radius:8px;background:#20093a;margin-bottom:12px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pk),var(--or));box-shadow:0 0 10px var(--pk);transition:width .3s}
+.fb{min-height:1.6em;font-size:1.25rem;margin-top:10px;font-weight:600}
+.word{font-size:2.2rem;color:var(--or);text-shadow:0 0 12px var(--or);font-weight:600}
+.rep{border-color:var(--cy);box-shadow:0 0 22px var(--cy),inset 0 0 22px rgba(0,255,255,.2)}
+.rep table{width:100%;border-collapse:collapse;margin:12px 0;font-size:1.1rem}
+.rep td{padding:6px 4px;border-bottom:1px dashed rgba(0,255,255,.4)}
+.rep td:last-child{text-align:right;color:var(--gr);font-weight:600}
+.grade{font-size:5rem;font-family:'Creepster',cursive,system-ui;color:var(--gr);text-shadow:0 0 12px var(--gr),0 0 30px var(--gr);line-height:1}
+.small{font-size:.95rem;opacity:.85}
+@media(max-width:420px){h1{font-size:2.6rem}.big{font-size:4rem}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app"></div>
+<script>
+// ---------- Background ----------
+const cv=document.getElementById('bg'),cx=cv.getContext('2d');let W,H;
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}rs();addEventListener('resize',rs);
+const icons=['🦇','👻','🎃','🕸️','💀','🕷️','🍬','🌙'];
+const fl=Array.from({length:26},()=>({e:icons[Math.random()*icons.length|0],x:Math.random()*innerWidth,y:Math.random()*innerHeight,s:20+Math.random()*34,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*.8,p:Math.random()*6}));
+const st=Array.from({length:60},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.8+.4,p:Math.random()*6,c:['#0ff','#ff2bd6','#39ff14','#ff7a00'][Math.random()*4|0]}));
+function draw(t){cx.clearRect(0,0,W,H);
+ st.forEach(s=>{cx.globalAlpha=.4+.6*Math.abs(Math.sin(t/700+s.p));cx.fillStyle=s.c;cx.shadowColor=s.c;cx.shadowBlur=10;cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill()});
+ cx.shadowBlur=0;cx.globalAlpha=.55;
+ fl.forEach(f=>{f.x+=f.vx;f.y+=f.vy+Math.sin(t/600+f.p)*.4;if(f.x<-60)f.x=W+40;if(f.x>W+60)f.x=-40;if(f.y<-60)f.y=H+40;if(f.y>H+60)f.y=-40;cx.font=f.s+'px serif';cx.fillText(f.e,f.x,f.y)});
+ requestAnimationFrame(draw)}requestAnimationFrame(draw);
+
+// ---------- Data (f = sentence clue, ___ = the word) ----------
+const D=[
+{en:'quiet',es:'callado(a)',e:'🤫🧒',f:'Sara is ___ in the library.'},
+{en:'friendly',es:'amigable',e:'🤝😊',f:'Tom is a ___ neighbor who says hello.'},
+{en:'funny',es:'gracioso(a)',e:'🤡😂',f:'My uncle is very ___. We laugh a lot!'},
+{en:'confident',es:'seguro(a) de sí mismo(a)',e:'💪😎',f:'She feels ___ on stage.'},
+{en:'athletic',es:'atlético(a)',e:'🏃‍♂️🏅',f:'Leo is ___ and plays many sports.'},
+{en:'smart',es:'inteligente',e:'🧠📚',f:'Ana gets 10s in every test. She is ___.'},
+{en:'kind',es:'amable',e:'💝🤗',f:'He is ___. He shares his lunch.'},
+{en:'patient',es:'paciente',e:'⏳🧘',f:'The teacher is ___ with every student.'},
+{en:'patiently',es:'pacientemente',e:'⏳🪑',f:'She waits ___ in line.'},
+{en:'quietly',es:'silenciosamente',e:'🤫🚶',f:'He walks ___ into the room.'},
+{en:'quickly',es:'rápidamente',e:'⚡🏃',f:'The boy runs ___ to the bus.'},
+{en:'badly',es:'mal',e:'🎤👎',f:'She sang ___ at the show.'},
+{en:'slowly',es:'lentamente',e:'🐢',f:'The turtle walks ___.'},
+{en:'well',es:'bien',e:'🎹👍',f:'He plays the piano ___.'},
+{en:'loudly',es:'ruidosamente',e:'📢😲',f:'The kids shout ___ at the game.'}];
+const STN=[
+{n:'Station 1',t:'Identify It! 👀',d:'Look at the picture and the sentence. Choose the word that fits.',ic:'🎃'},
+{n:'Station 2',t:'Write It! ✍️',d:'Look at the picture and the sentence, listen 🔊 and type the missing word.',ic:'👻'},
+{n:'Station 3',t:'Say It! 🎤',d:'Say the word out loud. Don’t worry — it doesn’t have to be perfect!',ic:'🦇'},
+{n:'Station 4',t:'Translate It! 🇲🇽',d:'Choose the correct word in Spanish.',ic:'🕸️'}];
+const N=D.length;
+
+// ---------- Helpers ----------
+const $=id=>document.getElementById(id),app=$('app');
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim();
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];}for(let j=1;j<=b.length;j++)m[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+const sim=(a,b)=>1-lev(a,b)/Math.max(a.length,b.length,1);
+const frame=(f,w)=>f.replace('___',w?`<b>${w}</b>`:'<b>_______</b>');
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
+let ac;function beep(ok){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='triangle';o.frequency.value=ok?660:180;g.gain.value=.08;o.start();if(ok)o.frequency.setValueAtTime(880,ac.currentTime+.1);o.stop(ac.currentTime+.25)}catch(e){}}
+const S={name:'',grp:'A',sc:[0,0,0,0],st:0,q:[],i:0,pts:0};
+
+// ---------- Screens ----------
+function home(){
+app.innerHTML=`<div class="card"><div style="font-size:3rem">🎃👻🦇</div><h1>People We Know</h1><div class="by">by Teacher Lizbeth</div>
+<label for="nm">✏️ Write your name:</label><input type="text" id="nm" maxlength="30" placeholder="Your name here" autocomplete="off" value="${S.name.replace(/"/g,'')}">
+<label>Choose your grade:</label><div class="row"><button class="btn sel" id="ga">Grade A</button><button class="btn" id="gb">Grade B</button></div>
+<button class="btn pk" id="go" style="margin-top:14px;font-size:1.4rem">🎃 Start Game!</button></div>`;
+const sg=g=>{S.grp=g;$('ga').classList.toggle('sel',g==='A');$('gb').classList.toggle('sel',g==='B')};
+$('ga').onclick=()=>sg('A');$('gb').onclick=()=>sg('B');sg(S.grp);
+$('go').onclick=()=>{const v=$('nm').value.trim();if(!v){$('nm').focus();$('nm').placeholder='Please write your name 👆';return}S.name=v;S.sc=[0,0,0,0];intro(0)}}
+
+function intro(s){S.st=s;const x=STN[s];
+app.innerHTML=`<div class="card"><div class="big">${x.ic}</div><div class="small">${x.n} of 4</div><h2>${x.t}</h2><p style="font-size:1.2rem">${x.d}</p>
+<button class="btn pk" id="st" style="font-size:1.3rem">Let’s go! ▶</button></div>`;
+$('st').onclick=()=>{ac&&ac.resume&&ac.resume();S.q=shuf(D);S.i=0;S.pts=0;ask()}}
+
+function hud(){return `<div class="hud"><span>${STN[S.st].n}</span><span>Question ${S.i+1}/${N}</span><span>⭐ ${S.pts}</span></div><div class="bar"><i style="width:${S.i/N*100}%"></i></div>`}
+function fb(ok,msg){const f=$('fb');f.style.color=ok?'#39ff14':'#ff7a00';f.textContent=msg;beep(ok)}
+function done(ok,delay){if(ok)S.pts++;setTimeout(()=>{S.i++;S.i<N?ask():finish()},delay||1100)}
+function finish(){S.sc[S.st]=S.pts;try{speechSynthesis.cancel()}catch(e){}
+if(S.st<3)intro(S.st+1);else report()}
+
+function ask(){const q=S.q[S.i],s=S.st;let h=`<div class="card">${hud()}<div class="big">${q.e}</div>`;
+if(s===0||s===3){const key=s===0?'en':'es';
+ const o=shuf([q,...shuf(D.filter(d=>d!==q)).slice(0,3)]);
+ h+=(s===3?`<div class="word">${q.en}</div><div class="frame small">${frame(q.f,q.en)}</div>`:`<div class="frame">${frame(q.f)}</div>`)+`<div class="opts">${o.map((d,k)=>`<button class="btn" data-k="${k}">${d[key]}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`;
+ app.innerHTML=h;
+ document.querySelectorAll('.opts .btn').forEach(b=>b.onclick=()=>{const d=o[b.dataset.k],ok=d===q;
+  document.querySelectorAll('.opts .btn').forEach(x=>x.onclick=null);
+  b.classList.add(ok?'ok':'no');if(!ok)document.querySelectorAll('.opts .btn').forEach((x,k)=>{if(o[k]===q)x.classList.add('ok')});
+  fb(ok,ok?'✨ Great job!':'👻 It is: '+q[key]);done(ok,1400)})}
+else if(s===1){
+ h+=`<div class="frame">${frame(q.f)}</div><button class="btn cy" id="sp">🔊 Listen</button><input type="text" id="an" placeholder="Type the missing word" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn pk" id="ck">Check ✔</button><div class="fb" id="fb"></div></div>`;
+ app.innerHTML=h;$('sp').onclick=()=>say(q.en);setTimeout(()=>say(q.en),300);$('an').focus();
+ let lock=0;const chk=()=>{if(lock)return;const a=norm($('an').value).replace(/ /g,''),t=q.en;if(!a)return;lock=1;
+  const ok=a===t||(t.length>=6&&lev(a,t)<=1);
+  fb(ok,ok?'✨ Perfect!':'👻 Correct: '+q.en);done(ok,1700)};
+ $('ck').onclick=chk;$('an').onkeydown=e=>{if(e.key==='Enter')chk()}}
+else{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let tries=0;
+ h+=`<div class="word">${q.en}</div><button class="btn cy" id="sp">🔊 Listen</button> <button class="btn pk" id="mic">🎤 Speak</button><div class="fb" id="fb"></div>${SR?'':'<p class="small">Your browser can’t hear you. Say the word out loud, then tap below.</p><button class="btn" id="hon">I said it! ✅</button>'}</div>`;
+ app.innerHTML=h;$('sp').onclick=()=>say(q.en);setTimeout(()=>say(q.en),300);
+ const win=()=>{fb(true,'🎉 Nice pronunciation!');done(true,1200)};
+ if(!SR){$('mic').style.display='none';$('hon').onclick=win;return}
+ let busy=0;$('mic').onclick=()=>{if(busy)return;busy=1;const r=new SR();r.lang='en-US';r.maxAlternatives=5;
+  $('fb').style.color='#0ff';$('fb').textContent='🎧 Listening...';$('mic').textContent='🔴 ...';
+  r.onresult=e=>{const alts=[...e.results[0]].map(a=>norm(a.transcript));const t=norm(q.en);
+   // lenient, but quiet/quietly and patient/patiently must not be mixed up
+   const ok=alts.some(a=>(a===t||sim(a,t)>=.55)&&D.every(d=>d===q||sim(a,norm(d.en))<=sim(a,t)));
+   busy=0;$('mic').textContent='🎤 Speak';
+   if(ok)win();else{tries++;if(tries>=3){fb(false,'👻 Good try! Listen: '+q.en);say(q.en);done(false,2200)}else fb(false,'🙂 Almost! Listen and try again ('+tries+'/3)')}};
+  r.onerror=()=>{busy=0;$('mic').textContent='🎤 Speak';$('fb').textContent='🙂 I didn’t hear you. Tap Speak again.'};
+  r.onend=()=>{if(busy){busy=0;$('mic').textContent='🎤 Speak'}};
+  try{r.start()}catch(e){busy=0}}}}
+
+function report(){
+const tot=S.sc.reduce((a,b)=>a+b,0),max=N*4,g=Math.round((6+4*tot/max)*10)/10,gs=Number.isInteger(g)?g+'':g.toFixed(1);
+const msg=g>=9.5?'🏆 Spooky-tacular! Amazing work!':g>=8.5?'🌟 Fantastic job!':g>=7.5?'🎃 Great work! Keep practicing!':g>=6.8?'👻 Good effort! Practice a little more!':'🦇 Keep trying — you can do it!';
+const d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+app.innerHTML=`<div class="card rep"><div style="font-size:2.4rem">🎃👻🦇</div><h1 style="font-size:2.6rem">People We Know</h1><div class="by">Report Card · Teacher Lizbeth</div>
+<div style="font-size:1.4rem;color:#fff">${S.name.replace(/</g,'&lt;')}</div><div class="small">Grade ${S.grp} · ${d}</div>
+<table>${STN.map((x,i)=>`<tr><td>${x.ic} ${x.t.replace(/ [^\w ]+$/,'')}</td><td>${S.sc[i]} / ${N}</td></tr>`).join('')}<tr><td><b>Total</b></td><td>${tot} / ${max}</td></tr></table>
+<div class="small">Final grade</div><div class="grade">${gs}</div><div style="font-size:1.2rem;margin-top:6px">${msg}</div>
+<p class="small">📸 Take a screenshot and send it to the English book!</p></div>
+<div class="row"><button class="btn cy" id="again">🔁 Play again</button></div>`;
+$('again').onclick=home}
+home();
+</script>
+</body>
+</html>
